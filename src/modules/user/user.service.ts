@@ -14,6 +14,53 @@ const createUserIntoDB = async (payload: IUser) => {
     return result
 }
 
+const getAllUserFromDB = async () => {
+    const result = await pool.query(`
+      SELECT * FROM users
+      `)
+    return result
+}
+
+const getSingleUserFromDB = async (id: string) => {
+    const result = await pool.query(`
+      SELECT * FROM users WHERE id = $1
+      `, [id])
+    return result
+}
+
+const updateUserFromDB = async (payload: IUser, id: string) => {
+
+    const { name, password, is_active, age } = payload;
+
+    const result = await pool.query(`
+      UPDATE users 
+      SET 
+      name = COALESCE($1, name), 
+      password = COALESCE($2, password), 
+      age = COALESCE($3, age), 
+      is_ative = COALESCE($4, is_ative)
+
+       WHERE id =$5 RETURNING *
+      `, [name, password, age, is_active, id])
+
+    return result
+}
+
+const deleteUserFromDB = async (id: string) => {
+    const result = await pool.query(
+      `
+    DELETE FROM users WHERE id=$1  
+      `,
+      [id],
+    );
+
+    return result
+}
+
 export const userService = {
-    createUserIntoDB
+    createUserIntoDB,
+    getAllUserFromDB,
+    getSingleUserFromDB,
+    updateUserFromDB,
+    deleteUserFromDB
 }
